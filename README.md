@@ -1,1 +1,1 @@
-# my-friend-list.github.io
+# platform.github.io
