@@ -3,10 +3,10 @@ const registerBtn = document.getElementById('register');
 const loginBtn = document.getElementById('login');
 const signInBtn = document.getElementById('signInBtn');
 
-// Храним ТОЛЬКО пользователей
-const users = [];
+// получаем пользователей из localStorage
+let users = JSON.parse(localStorage.getItem('users')) || [];
 
-// Переключение экранов
+// переключение экранов
 registerBtn.addEventListener('click', () => {
     container.classList.add("active");
 });
@@ -31,13 +31,16 @@ document.querySelector('.sign-up button').addEventListener('click', () => {
         return;
     }
 
-    users.push({ name, email, password });
-    alert("Регистрация успешна!");
+    const user = { name, email, password };
+    users.push(user);
 
-    // очистка
-    document.querySelector('.sign-up input[type="text"]').value = '';
-    document.querySelector('.sign-up input[type="email"]').value = '';
-    document.querySelector('.sign-up input[type="password"]').value = '';
+    // сохраняем в localStorage
+    localStorage.setItem('users', JSON.stringify(users));
+
+    // сохраняем последнего пользователя
+    localStorage.setItem('lastUser', JSON.stringify(user));
+
+    alert("Регистрация успешна!");
 
     container.classList.remove("active");
 });
@@ -50,16 +53,26 @@ signInBtn.addEventListener('click', () => {
     const user = users.find(u => u.email === email && u.password === password);
 
     if (!user) {
-        alert("Неправильно, попробуйте еще!");
+        alert("Неправильный email или пароль!");
         return;
     }
 
-    // Показываем ТОЛЬКО имя пользователя
+    // сохраняем последнего вошедшего пользователя
+    localStorage.setItem('lastUser', JSON.stringify(user));
+
     const overlay = document.createElement('div');
     overlay.className = 'fullscreen-name-list';
     overlay.innerHTML = `Здорова, ${user.name}! 👋`;
 
     document.body.appendChild(overlay);
-
     overlay.addEventListener('click', () => overlay.remove());
+});
+
+// 🔥 автозаполнение при загрузке страницы
+window.addEventListener('load', () => {
+    const lastUser = JSON.parse(localStorage.getItem('lastUser'));
+    if (lastUser) {
+        document.querySelector('.sign-in input[type="email"]').value = lastUser.email;
+        document.querySelector('.sign-in input[type="password"]').value = lastUser.password;
+    }
 });
